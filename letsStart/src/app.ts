@@ -1,12 +1,26 @@
 import * as express from "express";
-// express 공부
-const app = express(); // app이 서버 역할을 한다 (변수명?)
-const port = 3000;
-app.get("/test", (req: express.Request, res: express.Response) => {
-  console.log(req);
-  res.send("Hello World!@@");
+import catsRouter from "./cats/cats.route";
+
+const app: express.Express = express();
+
+//* logging middleware
+app.use((req, res, next) => {
+  console.log(req.rawHeaders[1]);
+  console.log("this is logging middleware");
+  next();
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+//* json middleware / express에서 제공하는 middleware를 사용
+app.use(express.json());
+
+app.use(catsRouter); // 중간 middleware라고 생각해도됨. 실직적으로는 라우터
+
+//* 404 middleware
+app.use((req, res, next) => {
+  console.log("this is error middleware");
+  res.send({ error: "404 not found error" });
+});
+
+app.listen(8000, () => {
+  console.log("server is on...");
 });
